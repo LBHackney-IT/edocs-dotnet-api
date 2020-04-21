@@ -13,7 +13,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>edocs_dotnet_api</RootNamespace>
     <AssemblyName>edocs-dotnet-api</AssemblyName>
-    <TargetFrameworkVersion>v4.0.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort>44364</IISExpressSSLPort>
