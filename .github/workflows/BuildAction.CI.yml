@@ -21,7 +21,7 @@ jobs:
       run: nuget restore edocs-dotnet-api.sln
  
     - name: Build Web App
-      run: msbuild edocs-dotnet-api.sln /p:Configuration=Release /p:DeployOnBuild=true
+      run: msbuild edocs-dotnet-api.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
       
     - name: Upload Artifact
       uses: actions/upload-artifact@v1.0.0
