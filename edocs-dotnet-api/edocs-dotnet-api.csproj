@@ -47,7 +47,7 @@
       <HintPath>..\packages\dotenv.net.2.1.0\lib\netstandard2.0\dotenv.net.dll</HintPath>
     </Reference>
     <Reference Include="Hummingbird.DM.Server.Interop.PCDClient">
-      <HintPath>.\edocs\Hummingbird.DM.Server.Interop.PCDClient.dll</HintPath>
+      <HintPath>..\edocs\Hummingbird.DM.Server.Interop.PCDClient.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
