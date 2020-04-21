@@ -39,7 +39,7 @@
       <HintPath>..\packages\FluentAssertions.5.10.3\lib\net47\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="Hummingbird.DM.Server.Interop.PCDClient">
-      <HintPath>..\..\..\..\Program Files (x86)\Open Text\DM API\Hummingbird.DM.Server.Interop.PCDClient.dll</HintPath>
+      <HintPath>..\edocs\Hummingbird.DM.Server.Interop.PCDClient.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
