@@ -22,6 +22,8 @@ namespace edocs_dotnet_api.Controllers
         string username = ConfigurationManager.AppSettings["EDOCSUSERNAME"];
         string password = ConfigurationManager.AppSettings["EDOCSPASSWORD"];
 
+        string serverName = ConfigurationManager.AppSettings["EDOCSSERVERNAME"];
+
         private string getAuthorizationToken()
         {
             var headers = Request.Headers;
@@ -42,7 +44,7 @@ namespace edocs_dotnet_api.Controllers
             
             var docNumber = id.ToString();            
 
-            var edocsGatway = new EdocsServerGateway(username,password,library);
+            var edocsGatway = new EdocsServerGateway(username,password,library,serverName);
             PCDCLIENTLib.PCDGetStream objPCDGetStream = edocsGatway.getDocument(docNumber);
             int nbytes = (int)objPCDGetStream.GetPropertyValue("%ISTREAM_STATSTG_CBSIZE_LOWPART");
 
@@ -53,13 +55,7 @@ namespace edocs_dotnet_api.Controllers
             var tempFileName = docNumber + "-" + DateTime.Now.ToString("yyMMddHHmmssfff") + "." + fileType;
             var filenamePath = tempFilePath + tempFileName;
 
-            using (Stream to = new FileStream(filenamePath, FileMode.OpenOrCreate))
-            {
-                int readCount;
-                byte[] buffer = new byte[nbytes];
-                buffer = (byte[])objPCDGetStream.Read(nbytes, out readCount);
-                to.Write(buffer, 0, readCount);
-            }
+            this.saveFileLocally(filenamePath,nbytes,objPCDGetStream);
 
             var stream = new FileStream(filenamePath, FileMode.Open, FileAccess.Read);
             
@@ -75,5 +71,52 @@ namespace edocs_dotnet_api.Controllers
                 
         }
 
+        private Boolean saveFileLocally(string filename, int nbytes, PCDCLIENTLib.PCDGetStream objPCDGetStream)
+        {
+            Boolean status = false;
+            try
+            {
+                using (Stream to = new FileStream(filename, FileMode.OpenOrCreate))
+                {
+                    int readCount;
+                    byte[] buffer = new byte[nbytes];
+                    buffer = (byte[])objPCDGetStream.Read(nbytes, out readCount);
+                    to.Write(buffer, 0, readCount);
+                }
+                status = true;
+            }catch (Exception e)
+            {
+                throw new Exception("Exception while saving file",e);
+            }
+            return status;
+        }
+
     }
 }
+
+//private Boolean saveFileLocally(string filename, int nbytes, PCDCLIENTLib.PCDGetStream objPCDGetStream)
+//{
+//    Boolean status = false;
+//    try
+//    {
+//        using (Stream to = new FileStream(filename, FileMode.OpenOrCreate))
+//        {
+
+//            int bytesRead;
+//            objPCDGetStream.Read(1024, out bytesRead);
+
+//            while (objPCDGetStream.ErrNumber == 0 && (bytesRead > 0))
+//            {
+//                byte[] buffer = objPCDGetStream.Read(1024, out bytesRead);
+//                to.Write(buffer, 0, bytesRead);
+//            }
+//            objPCDGetStream.SetComplete();
+//        }
+//        status = true;
+//    }
+//    catch (Exception e)
+//    {
+//        throw new Exception("Exception while saving file", e);
+//    }
+//    return status;
+//}

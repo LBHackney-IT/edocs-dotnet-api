@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using PCDCLIENTLib = Hummingbird.DM.Server.Interop.PCDClient;
 
 namespace edocs_dotnet_api.Gatways
 {
     public class EdocsServerGateway
     {
-        public EdocsServerGateway(string username, string password, string library)
+        public EdocsServerGateway(string username, string password, string library, string serverName)
         {
             this.username = username;
             this.password = password;
             this.library = library;
+            this.serverName = serverName;
             this.login();
         }
 
@@ -20,6 +18,26 @@ namespace edocs_dotnet_api.Gatways
         public string password { get; private set; }
         public string library { get; private set; }
         public string dst { get; private set; }
+        public string serverName { get; private set; }
+
+        public void login()
+        {
+            var PCDLogin = new PCDCLIENTLib.PCDLogin();
+            var rc = PCDLogin.AddLogin(0, library, username, password);
+
+            if ((null != serverName && (0 < serverName.Trim().Length)))
+                PCDLogin.SetServerName(serverName);
+
+            rc = PCDLogin.Execute();
+
+            if (rc != 0)
+            {
+                throw new SystemException();
+            }
+
+            this.dst = PCDLogin.GetDST();
+
+        }
 
         public string getFileType(string docNumber)
         {
@@ -41,23 +59,7 @@ namespace edocs_dotnet_api.Gatways
             
             return fileType;
         }
-
-        public void login()
-        {
-            var PCDLogin = new PCDCLIENTLib.PCDLogin();
-            var rc = PCDLogin.AddLogin(0, library, username, password);
-
-            rc = PCDLogin.Execute();
-
-            if (rc != 0)
-            {
-                throw new SystemException();
-            }
-
-            this.dst = PCDLogin.GetDST();
-            
-        }
-
+        
         public PCDCLIENTLib.PCDGetStream getDocument(string docNumber)
         {
 
@@ -85,24 +87,7 @@ namespace edocs_dotnet_api.Gatways
             obj.GetPropertyValue("PATH");
             obj.ReleaseResults();
 
-
-            var sql = new PCDCLIENTLib.PCDSQL();
-            sql.SetDST(dst);
-            rc = sql.Execute("SELECT PATH FROM DOCSADM.COMPONENTS WHERE DOCNUMBER = " + docNumber);
-
-            if (rc != 0)
-            {
-                Console.WriteLine(sql.ErrDescription);
-                throw new SystemException();
-            }
-
-            sql.SetRow(1);
-            var path = sql.GetColumnValue(1);
-            Console.WriteLine("The path is:" + path);
-            var tokens = path.Split('.');
-
-            var fileType = tokens[tokens.Length - 1].ToLower();
-            Console.WriteLine("File type:" + fileType);
+            var fileType = this.getFileType(docNumber);
 
             obj = new PCDCLIENTLib.PCDSearch();
             obj.SetDST(dst);
@@ -114,11 +99,10 @@ namespace edocs_dotnet_api.Gatways
             obj.AddReturnProperty("VERSION_ID");
 
             rc = obj.Execute();
-
-
+            
             if (rc != 0)
             {
-                Console.WriteLine(sql.ErrDescription);
+                Console.WriteLine(obj.ErrDescription);
                 throw new SystemException();
             }
 
@@ -139,8 +123,7 @@ namespace edocs_dotnet_api.Gatways
 
             if (rc != 0)
             {
-                Console.WriteLine(getobj.ErrDescription);
-                throw new SystemException();
+                throw new Exception(getobj.ErrDescription);
             }
 
             getobj.NextRow();
