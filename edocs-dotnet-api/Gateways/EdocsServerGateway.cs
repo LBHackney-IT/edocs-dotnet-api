@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 
 namespace edocs_dotnet_api.Gateways
-{
+{ 
     using System;
     using PCDCLIENTLib = Hummingbird.DM.Server.Interop.PCDClient;
 
@@ -29,17 +29,34 @@ namespace edocs_dotnet_api.Gateways
 
             public void login()
             {
-                var PCDLogin = new PCDCLIENTLib.PCDLogin();
-                var rc = PCDLogin.AddLogin(0, library, username, password);
 
-                if ((null != serverName && (0 < serverName.Trim().Length)))
-                    PCDLogin.SetServerName(serverName);
+                int rc = 1;
+                PCDCLIENTLib.PCDLogin PCDLogin;
 
-                rc = PCDLogin.Execute();
+                try
+                {
+                    PCDLogin = new PCDCLIENTLib.PCDLogin();
+                    rc = PCDLogin.AddLogin(0, library, username, password);
+                }catch (Exception ex)
+                {
+                    throw new Exception("Exception while calling PCDLogin.AddLogin() API", ex);
+                }
+
+                try
+                {
+                    if ((null != serverName && (0 < serverName.Trim().Length)))
+                        PCDLogin.SetServerName(serverName);
+
+                    rc = PCDLogin.Execute();
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception("Exception while calling PCDLogin.Execute() API", ex);
+                }
 
                 if (rc != 0)
                 {
-                    throw new SystemException();
+                    throw new Exception("Login failed : " + PCDLogin.ErrNumber + PCDLogin.ErrDescription);
                 }
 
                 this.dst = PCDLogin.GetDST();
