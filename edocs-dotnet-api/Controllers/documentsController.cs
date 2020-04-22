@@ -25,17 +25,27 @@ namespace edocs_dotnet_api.Controllers
         private string getAuthorizationToken()
         {
             var headers = Request.Headers;
-            if (headers.Contains("Authorization"))
+            if (headers.Contains(HttpRequestHeader.Authorization.ToString()))
             {
                 return Request.Headers.Authorization.ToString().Substring(7);
             }
             return "";
         }
 
+        private Boolean isAuthenticated()
+        {
+            if (this.getAuthorizationToken().Equals(apiKey))
+            {
+                return true;
+            }
+            return false;
+        }
+
         // GET api/<controller>/id
         public HttpResponseMessage Get(int id)
         {
-            if (!this.getAuthorizationToken().Equals(apiKey))
+
+            if (!isAuthenticated())
             {
                 throw new HttpResponseException(HttpStatusCode.Unauthorized);
             }
@@ -43,7 +53,15 @@ namespace edocs_dotnet_api.Controllers
             var docNumber = id.ToString();
 
             var edocsGatway = new EdocsServerGateway(username, password, library, serverName);
+            
             PCDCLIENTLib.PCDGetStream objPCDGetStream = edocsGatway.getDocument(docNumber);
+
+            if (objPCDGetStream == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+
             int nbytes = (int)objPCDGetStream.GetPropertyValue("%ISTREAM_STATSTG_CBSIZE_LOWPART");
 
             string fileType = edocsGatway.getFileType(docNumber);
