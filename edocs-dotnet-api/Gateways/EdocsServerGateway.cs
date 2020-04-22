@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace edocs_dotnet_api.Gateways
+﻿namespace edocs_dotnet_api.Gateways
 { 
     using System;
     using PCDCLIENTLib = Hummingbird.DM.Server.Interop.PCDClient;
@@ -84,9 +79,8 @@ namespace edocs_dotnet_api.Gateways
                 return fileType;
             }
 
-            public PCDCLIENTLib.PCDGetStream getDocument(string docNumber)
+            public string getDocName(string docNumber)
             {
-
                 var obj = new PCDCLIENTLib.PCDSearch();
                 obj.SetDST(dst);
                 obj.AddSearchLib(library);
@@ -104,16 +98,25 @@ namespace edocs_dotnet_api.Gateways
                 }
 
                 obj.SetRow(1);
-
-
                 var docname = obj.GetPropertyValue("DOCNAME");
-
                 obj.GetPropertyValue("PATH");
                 obj.ReleaseResults();
 
+                return docname;
+            }
+
+            public PCDCLIENTLib.PCDGetStream getDocument(string docNumber)
+            {
+
+                var docname = this.getDocName(docNumber);
+                if (docname == null)
+                {
+                    return null;
+                }
+
                 var fileType = this.getFileType(docNumber);
 
-                obj = new PCDCLIENTLib.PCDSearch();
+                var obj = new PCDCLIENTLib.PCDSearch();
                 obj.SetDST(dst);
                 obj.AddSearchLib(library);
                 obj.SetSearchObject("cyd_cmnversions");
@@ -122,7 +125,7 @@ namespace edocs_dotnet_api.Gateways
                 obj.AddReturnProperty("VERSION");
                 obj.AddReturnProperty("VERSION_ID");
 
-                rc = obj.Execute();
+                var rc = obj.Execute();
 
                 if (rc != 0)
                 {
