@@ -37,7 +37,7 @@ namespace edocs_dotnet_api.Controllers
         {
             if (!this.getAuthorizationToken().Equals(apiKey))
             {
-                //throw new HttpResponseException(HttpStatusCode.Unauthorized);
+                throw new HttpResponseException(HttpStatusCode.Unauthorized);
             }
 
             var docNumber = id.ToString();
