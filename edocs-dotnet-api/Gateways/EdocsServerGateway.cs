@@ -60,9 +60,17 @@
 
             public string getFileType(string docNumber)
             {
+                int rc = 1;
                 var sql = new PCDCLIENTLib.PCDSQL();
-                sql.SetDST(dst);
-                int rc = sql.Execute("SELECT PATH FROM DOCSADM.COMPONENTS WHERE DOCNUMBER = " + docNumber);
+                try
+                {
+                    sql.SetDST(dst);
+                    rc = sql.Execute("SELECT PATH FROM DOCSADM.COMPONENTS WHERE DOCNUMBER = " + docNumber);
+                }catch(Exception ex)
+                {
+                    throw new Exception("Exception while calling PCDSQL.Execute() API", ex);
+                }
+
 
                 if (rc != 0)
                 {
@@ -71,6 +79,7 @@
 
                 sql.SetRow(1);
                 var path = sql.GetColumnValue(1);
+
 
                 var tokens = path.Split('.');
                 var fileType = tokens[tokens.Length - 1].ToLower();
@@ -87,12 +96,17 @@
                 obj.AddSearchCriteria("DOCNUMBER", docNumber);
                 obj.AddReturnProperty("PATH");
                 obj.AddReturnProperty("DOCNAME");
-
-
-                var rc = obj.Execute();
+                var rc = 1;
+                try {
+                    rc = obj.Execute();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Exception while calling PCDSearch.Execute() API", ex);
+                }
+                
                 if (rc != 0)
                 {
-                    Console.WriteLine(obj.ErrDescription);
                     throw new Exception("Failed to get Document Name : " + obj.ErrNumber + obj.ErrDescription);
                 }
 
@@ -115,21 +129,26 @@
                 obj.AddReturnProperty("VERSION");
                 obj.AddReturnProperty("VERSION_ID");
 
-                var rc = obj.Execute();
+                var rc = 1;
+                try
+                {
+                    rc = obj.Execute();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Exception while calling PCDSearch.Execute() API", ex);
+                }
 
                 if (rc != 0)
                 {
-                    Console.WriteLine(obj.ErrDescription);
-                    throw new SystemException();
+                    throw new Exception("Failed to get Document Version Id : " + obj.ErrNumber + obj.ErrDescription);
                 }
 
                 obj.SetRow(1);
                 var version = obj.GetPropertyValue("VERSION");
                 var versionId = obj.GetPropertyValue("VERSION_ID");
-                Console.WriteLine("Version: $version Version ID: " + versionId);
                 obj.ReleaseResults();
 
-                //string ver = "" + versionId;
                 return versionId;
             }
 
@@ -137,14 +156,13 @@
             {
 
                 var docname = this.getDocName(docNumber);
-                if (docname == null)
+                string versionId = this.getVersionId(docNumber);
+                if (docname == null || versionId == null)
                 {
                     return null;
                 }
 
                 var fileType = this.getFileType(docNumber);
-
-                string versionId = this.getVersionId(docNumber);
 
                 var getobj = new PCDCLIENTLib.PCDGetDoc();
                 getobj.SetDST(dst);
@@ -155,7 +173,7 @@
 
                 if (rc != 0)
                 {
-                    throw new Exception(getobj.ErrDescription);
+                    throw new Exception("Failed to get Document : " + getobj.ErrNumber + getobj.ErrDescription);
                 }
 
                 getobj.NextRow();

@@ -7,20 +7,12 @@ using System.Net.Http.Headers;
 using System.Configuration;
 using System.Net;
 using edocs_dotnet_api.Gateways.edocs_dotnet_api.Gatways;
+using edocs_dotnet_api.infrastructure;
 
 namespace edocs_dotnet_api.Controllers
 {
     public class DocumentsController : ApiController
     {
-
-        string apiKey = ConfigurationManager.AppSettings["EDOCSAPIKEY"];
-        string library = ConfigurationManager.AppSettings["EDOCSLIBRARY"];
-        string tempFilePath = ConfigurationManager.AppSettings["EDOCSTEMPFILEPATH"];
-
-        string username = ConfigurationManager.AppSettings["EDOCSUSERNAME"];
-        string password = ConfigurationManager.AppSettings["EDOCSPASSWORD"];
-
-        string serverName = ConfigurationManager.AppSettings["EDOCSSERVERNAME"];
 
         private string getAuthorizationToken()
         {
@@ -34,7 +26,7 @@ namespace edocs_dotnet_api.Controllers
 
         private Boolean isAuthenticated()
         {
-            if (this.getAuthorizationToken().Equals(apiKey))
+            if (this.getAuthorizationToken().Equals(APIConfiguration.EDOCS_API_KEY))
             {
                 return true;
             }
@@ -52,7 +44,7 @@ namespace edocs_dotnet_api.Controllers
 
             var docNumber = id.ToString();
 
-            var edocsGatway = new EdocsServerGateway(username, password, library, serverName);
+            var edocsGatway = new EdocsServerGateway(APIConfiguration.EDOCS_USERNAME, APIConfiguration.EDOCS_PASSWORD, APIConfiguration.EDOCS_LIBRARY, APIConfiguration.EDOCS_SERVERNAME);
             
             PCDCLIENTLib.PCDGetStream objPCDGetStream = edocsGatway.getDocument(docNumber);
 
@@ -69,7 +61,7 @@ namespace edocs_dotnet_api.Controllers
             var fileName = docNumber + "." + fileType;
 
             var tempFileName = docNumber + "-" + DateTime.Now.ToString("yyMMddHHmmssfff") + "." + fileType;
-            var filenamePath = tempFilePath + tempFileName;
+            var filenamePath = APIConfiguration.EDOCS_TEMP_FILE_PATH + tempFileName;
 
             this.saveFileLocally(filenamePath, nbytes, objPCDGetStream);
 
