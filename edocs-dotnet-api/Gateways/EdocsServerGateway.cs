@@ -66,8 +66,7 @@
 
                 if (rc != 0)
                 {
-                    Console.WriteLine(sql.ErrDescription);
-                    throw new SystemException();
+                    throw new Exception("Failed to get File Type : " + sql.ErrNumber + sql.ErrDescription);
                 }
 
                 sql.SetRow(1);
@@ -94,7 +93,7 @@
                 if (rc != 0)
                 {
                     Console.WriteLine(obj.ErrDescription);
-                    throw new SystemException();
+                    throw new Exception("Failed to get Document Name : " + obj.ErrNumber + obj.ErrDescription);
                 }
 
                 obj.SetRow(1);
@@ -105,17 +104,8 @@
                 return docname;
             }
 
-            public PCDCLIENTLib.PCDGetStream getDocument(string docNumber)
+            public string getVersionId(string docNumber)
             {
-
-                var docname = this.getDocName(docNumber);
-                if (docname == null)
-                {
-                    return null;
-                }
-
-                var fileType = this.getFileType(docNumber);
-
                 var obj = new PCDCLIENTLib.PCDSearch();
                 obj.SetDST(dst);
                 obj.AddSearchLib(library);
@@ -139,14 +129,29 @@
                 Console.WriteLine("Version: $version Version ID: " + versionId);
                 obj.ReleaseResults();
 
-                string ver = "" + versionId;
+                //string ver = "" + versionId;
+                return versionId;
+            }
+
+            public PCDCLIENTLib.PCDGetStream getDocument(string docNumber)
+            {
+
+                var docname = this.getDocName(docNumber);
+                if (docname == null)
+                {
+                    return null;
+                }
+
+                var fileType = this.getFileType(docNumber);
+
+                string versionId = this.getVersionId(docNumber);
 
                 var getobj = new PCDCLIENTLib.PCDGetDoc();
                 getobj.SetDST(dst);
                 getobj.AddSearchCriteria("%TARGET_LIBRARY", library);
-                getobj.AddSearchCriteria("%VERSION_ID", ver);
+                getobj.AddSearchCriteria("%VERSION_ID", versionId);
                 getobj.AddSearchCriteria("%DOCUMENT_NUMBER", docNumber);
-                rc = getobj.Execute();
+                var rc = getobj.Execute();
 
                 if (rc != 0)
                 {
