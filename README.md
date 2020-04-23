@@ -1,4 +1,4 @@
-# edocs-dotnet-api
+# edocs-dotnet-api 🚀
 
 ## Configuration
 
@@ -13,8 +13,11 @@ web.config
 
 ## Build
 
-Build is automated using git actions on commit\
-Artifacts are available within the git actions build
+- Build is automated using [github actions](https://github.com/features/actions) on commit
+
+- Artifacts are available within the git actions build
+![image](https://user-images.githubusercontent.com/22743709/80125543-b6140300-8589-11ea-882d-7d3936e60728.png)
+
 
 ## Deploy
 
@@ -30,5 +33,6 @@ Artifacts are available within the git actions build
 
 ## Troubleshooting
 
--2147220409 error code related to iis app pool identity permissions
+### Errors
+`-2147220409` error code is related to iis app pool identity permissions
 
