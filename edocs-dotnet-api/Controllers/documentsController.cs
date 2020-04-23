@@ -5,14 +5,12 @@ using System.Web.Http;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Configuration;
-using edocs_dotnet_api.Gatways;
-using System.Web;
-using Microsoft.Win32.SafeHandles;
 using System.Net;
+using edocs_dotnet_api.Gateways.edocs_dotnet_api.Gatways;
 
 namespace edocs_dotnet_api.Controllers
 {
-    public class documentsController : ApiController
+    public class DocumentsController : ApiController
     {
 
         string apiKey = ConfigurationManager.AppSettings["EDOCSAPIKEY"];
@@ -27,25 +25,43 @@ namespace edocs_dotnet_api.Controllers
         private string getAuthorizationToken()
         {
             var headers = Request.Headers;
-            if (headers.Contains("Authorization"))
+            if (headers.Contains(HttpRequestHeader.Authorization.ToString()))
             {
                 return Request.Headers.Authorization.ToString().Substring(7);
             }
             return "";
         }
 
+        private Boolean isAuthenticated()
+        {
+            if (this.getAuthorizationToken().Equals(apiKey))
+            {
+                return true;
+            }
+            return false;
+        }
+
         // GET api/<controller>/id
         public HttpResponseMessage Get(int id)
         {
-            if (!this.getAuthorizationToken().Equals(apiKey))
+
+            if (!isAuthenticated())
             {
                 throw new HttpResponseException(HttpStatusCode.Unauthorized);
             }
-            
-            var docNumber = id.ToString();            
 
-            var edocsGatway = new EdocsServerGateway(username,password,library,serverName);
+            var docNumber = id.ToString();
+
+            var edocsGatway = new EdocsServerGateway(username, password, library, serverName);
+            
             PCDCLIENTLib.PCDGetStream objPCDGetStream = edocsGatway.getDocument(docNumber);
+
+            if (objPCDGetStream == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+
             int nbytes = (int)objPCDGetStream.GetPropertyValue("%ISTREAM_STATSTG_CBSIZE_LOWPART");
 
             string fileType = edocsGatway.getFileType(docNumber);
@@ -55,7 +71,7 @@ namespace edocs_dotnet_api.Controllers
             var tempFileName = docNumber + "-" + DateTime.Now.ToString("yyMMddHHmmssfff") + "." + fileType;
             var filenamePath = tempFilePath + tempFileName;
 
-            this.saveFileLocally(filenamePath,nbytes,objPCDGetStream);
+            this.saveFileLocally(filenamePath, nbytes, objPCDGetStream);
 
             var stream = new FileStream(filenamePath, FileMode.Open, FileAccess.Read);
             
@@ -64,11 +80,11 @@ namespace edocs_dotnet_api.Controllers
             response.Content = new StreamContent(stream);
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(System.Web.MimeMapping.GetMimeMapping(fileName));
             response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                {
-                    FileName = fileName
-                };
+            {
+                FileName = fileName
+            };
             return response;
-                
+
         }
 
         private Boolean saveFileLocally(string filename, int nbytes, PCDCLIENTLib.PCDGetStream objPCDGetStream)
@@ -84,9 +100,10 @@ namespace edocs_dotnet_api.Controllers
                     to.Write(buffer, 0, readCount);
                 }
                 status = true;
-            }catch (Exception e)
+            }
+            catch (Exception e)
             {
-                throw new Exception("Exception while saving file",e);
+                throw new Exception("Exception while saving file", e);
             }
             return status;
         }
