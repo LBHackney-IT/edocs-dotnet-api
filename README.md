@@ -9,7 +9,7 @@ web.config
 - EDOCSPASSWORD
 - EDOCSLIBRARY
 - EDOCSTEMPFILEPATH - Folder path used to temporarily store documents downloaded from edocs (temp files will be deleted when sent)
-- EDOCSSERVERNAME - optional (will only be used when present)
+- EDOCSSERVERNAME - optional
 
 ## Build
 
