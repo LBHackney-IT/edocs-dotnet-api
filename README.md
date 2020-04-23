@@ -1,6 +1,6 @@
 # edocs-dotnet-api
 
-##Configuration
+## Configuration
 
 web.config
 
@@ -11,12 +11,12 @@ web.config
 - EDOCSTEMPFILEPATH - Folder path used to temporarily store documents downloaded from edocs (temp files will be deleted when sent)
 - EDOCSSERVERNAME - optional (will only be used when present)
 
-##Build
+## Build
 
 Build is automated using git actions on commit\
 Artifacts are available within the git actions build
 
-##Deploy
+## Deploy
 
 - Create classic app pool within iis 
   - use an identity with permission to run com api libs & save files to temp folder
@@ -28,7 +28,7 @@ Artifacts are available within the git actions build
   - create temp folder for EDOCSTEMPFILEPATH if necessary
 - Restart app pool in iis
 
-##Troubleshooting
+## Troubleshooting
 
 -2147220409 error code related to iis app pool identity permissions
 
