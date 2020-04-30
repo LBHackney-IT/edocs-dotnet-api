@@ -130,7 +130,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\FileHttpResponseMessage.cs" />
+    <Compile Include="infrastructure\FileHttpResponseMessage.cs" />
     <Compile Include="Controllers\DocumentsController.cs" />
     <Compile Include="Gateways\EdocsServerGateway.cs" />
     <Compile Include="Global.asax.cs">
