@@ -31,4 +31,3 @@ Artifacts are available within the git actions build
 ## Troubleshooting
 
 -2147220409 error code related to iis app pool identity permissions
-
